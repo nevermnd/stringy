@@ -1,0 +1,2 @@
+# Stringy
+PHP string class
