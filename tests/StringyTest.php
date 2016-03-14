@@ -68,7 +68,12 @@ class StringyTest extends PHPUnit_Framework_TestCase
 
     public function testOffsetExist()
     {
-        $this->assertTrue(isset(str('foo')[2]));
+        $this->assertTrue(str('foo')->offsetExists(2));
+    }
+
+    public function testOffsetGet()
+    {
+        $this->assertEquals('f', $this->assertStr(str('foo'))->offsetGet(0));
     }
 
     public function testConcat()
@@ -128,7 +133,21 @@ class StringyTest extends PHPUnit_Framework_TestCase
 
     public function testFormat()
     {
+        $phrase = 'The %s brown %s jumps over the lazy dog %d times';
 
+        $this->assertEquals(
+            'The quick brown fox jumps over the lazy dog 2 times',
+            $this->assertStr(str($phrase))->format('quick', 'fox', 2)
+        );
+        $this->assertEquals(
+            str('The quick brown fox jumps over the lazy dog 2 times'),
+            $this->assertStr(str($phrase))->format('quick', 'fox', 2)
+        );
+    }
+
+    public function testToString()
+    {
+        $this->assertSame('foo', $this->assertStr(str('foo'))->toString());
     }
 
     private function assertStr(Stringy $str)

@@ -184,7 +184,7 @@ class Stringy implements ArrayAccess
      *
      * @return static
      */
-    public function format($args)
+    public function format(... $args)
     {
         $string = call_user_func_array('sprintf', array_merge([$this->string], $args));
 
@@ -221,6 +221,14 @@ class Stringy implements ArrayAccess
     public function offsetUnset($offset)
     {
         throw new RuntimeException('offsetUnset is not supported');
+    }
+
+    /**
+     * @return string
+     */
+    public function toString()
+    {
+        return $this->str($this);
     }
 
     /**
