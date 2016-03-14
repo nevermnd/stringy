@@ -100,11 +100,22 @@ class Stringy implements ArrayAccess, IteratorAggregate, Countable
      * @see htmlspecialchars()
      * @return static
      */
-    public function encode()
+    public function htmlEncode()
     {
         $encode = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE);
 
         return new static($encode);
+    }
+
+    /**
+     * @see htmlspecialchars_decode()
+     * @return static
+     */
+    public function htmlDecode()
+    {
+        $decode = htmlspecialchars_decode($this->string, ENT_QUOTES);
+
+        return new static($decode);
     }
 
     /**

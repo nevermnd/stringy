@@ -7,13 +7,6 @@ use String\Stringy;
 
 class StringyTest extends PHPUnit_Framework_TestCase
 {
-    private function assertStr(Stringy $str)
-    {
-        $this->assertInstanceOf('String\Stringy', $str);
-
-        return $str;
-    }
-
     public function testBase64()
     {
         $this->assertEquals('Rm9vQmFyUXV4QmF6', $this->assertStr(str('FooBarQuxBaz'))->toBase64());
@@ -48,10 +41,10 @@ class StringyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->assertStr(str('foobarqux'))->contains(str('bar')));
     }
 
-    public function testEncode()
+    public function testEncodeHtml()
     {
-        $this->assertEquals('&amp;', $this->assertStr(str('&'))->encode());
-        $this->assertEquals(str('&amp;'), $this->assertStr(str('&'))->encode());
+        $this->assertEquals('&amp;', $this->assertStr(str('&'))->htmlEncode());
+        $this->assertEquals(str('&amp;'), $this->assertStr(str('&'))->htmlEncode());
     }
 
     public function testEquals()
@@ -198,5 +191,18 @@ class StringyTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('Foobar', $this->assertStr(str('foobar'))->ucFirst());
         $this->assertEquals(str('Foobar'), $this->assertStr(str('foobar'))->ucFirst());
+    }
+
+    public function testDecodeHtml()
+    {
+        $this->assertEquals('<b>bold</b>', $this->assertStr(str('&lt;b&gt;bold&lt;/b&gt;'))->htmlDecode());
+        $this->assertEquals(str('<b>bold</b>'), $this->assertStr(str('&lt;b&gt;bold&lt;/b&gt;'))->htmlDecode());
+    }
+
+    private function assertStr(Stringy $str)
+    {
+        $this->assertInstanceOf('String\Stringy', $str);
+
+        return $str;
     }
 }
