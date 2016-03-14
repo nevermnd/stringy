@@ -20,5 +20,5 @@ or creating a new instance manually
 
 ```php
   $string = new \String\Stringy('FooBarQux');
-  $string->slice(3, 3)->contains('Bar');
+  $string->slice(3, 3)->equals('Bar');
 ```
