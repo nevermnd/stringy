@@ -3,12 +3,15 @@
 namespace String;
 
 use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
 use RuntimeException;
 
-class Stringy implements ArrayAccess
+class Stringy implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
-     * String
+     * The string itself
      *
      * @var string
      */
@@ -25,37 +28,51 @@ class Stringy implements ArrayAccess
     }
 
     /**
-     * Check whether the two strings are equals
+     * PHP magic __invoke method
      *
-     * @param string $other
-     *
-     * @return bool
+     * @return static
      */
-    public function equals($other)
+    public function __invoke()
     {
-        return $this->string === $this->str($other);
+        return new static($this->string);
     }
 
     /**
-     * Converts the string to upper case
+     * PHP magic __toString method
      *
-     * @see strtoupper()
-     * @return static
+     * @return string
      */
-    public function toUpper()
+    public function __toString()
     {
-        return new static(strtoupper($this->string));
+        return $this->string;
     }
 
     /**
-     * Converts the string to lower case
+     * @param int $pos
      *
-     * @see strtolower()
      * @return static
      */
-    public function toLower()
+    public function charAt($pos)
     {
-        return new static(strtolower($this->str($this->string)));
+        return $this->offsetGet($pos);
+    }
+
+    /**
+     * Concatenate two strings
+     *
+     * @param mixed ...$strings
+     *
+     * @return static
+     */
+    public function concat($strings)
+    {
+        $value = $this->string;
+
+        foreach (func_get_args() as $string) {
+            $value .= $string;
+        }
+
+        return new static($value);
     }
 
     /**
@@ -70,70 +87,11 @@ class Stringy implements ArrayAccess
     }
 
     /**
-     * @param int $offset
-     * @param int $size
-     *
-     * @see substr()
-     * @return static
+     * @inheritdoc
      */
-    public function slice($offset, $size = null)
+    public function count()
     {
-        return new static(substr($this->string, $offset, $size));
-    }
-
-    /**
-     * Concatenate two strings
-     *
-     * @param array|string ...$strings
-     *
-     * @return static
-     */
-    public function concat(... $strings)
-    {
-        $value = $this->string;
-
-        foreach ($strings as $string) {
-            $value .= $string;
-        }
-
-        return new static($value);
-    }
-
-    /**
-     * @see trim()
-     * @return static
-     */
-    public function trim()
-    {
-        return new static(trim($this->string));
-    }
-
-    /**
-     * @see ltrim()
-     * @return static
-     */
-    public function leftTrim()
-    {
-        return new static(ltrim($this->string));
-    }
-
-    /**
-     * @see rtrim()
-     * @return static
-     */
-    public function rightTrim()
-    {
-        return new static(rtrim($this->string));
-    }
-
-    /**
-     * @param int $pos
-     *
-     * @return static
-     */
-    public function charAt($pos)
-    {
-        return $this->offsetGet($pos);
+        return strlen($this->string);
     }
 
     /**
@@ -150,15 +108,75 @@ class Stringy implements ArrayAccess
     }
 
     /**
-     * @param string $search
-     * @param string $replace
+     * Check whether the two strings are equals
      *
-     * @see str_replace()
+     * @param string $other
+     *
+     * @return bool
+     */
+    public function equals($other)
+    {
+        return $this->string === $this->str($other);
+    }
+
+    /**
+     * @param string $delimiter
+     *
+     * @see explode()
+     * @return static[]
+     */
+    public function explode($delimiter)
+    {
+        $explode = explode($this->str($delimiter), $this->string);
+
+        return $this->mapStrings($explode);
+    }
+
+    /**
+     * @param mixed ...$args
+     *
      * @return static
      */
-    public function replace($search, $replace)
+    public function format($args)
     {
-        return new static(str_replace($this->str($search), $this->str($replace), $this->string));
+        $string = call_user_func_array('sprintf', array_merge([$this->string], func_get_args()));
+
+        return new static($string);
+    }
+
+    /**
+     * @see base64_decode()
+     * @return static
+     */
+    public function fromBase64()
+    {
+        return new static(base64_decode($this->string));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->split());
+    }
+
+    /**
+     * @see md5()
+     * @return static
+     */
+    public function hash()
+    {
+        return new static(md5($this->string));
+    }
+
+    /**
+     * @see ltrim()
+     * @return static
+     */
+    public function leftTrim()
+    {
+        return new static(ltrim($this->string));
     }
 
     /**
@@ -167,28 +185,7 @@ class Stringy implements ArrayAccess
      */
     public function length()
     {
-        return strlen($this->string);
-    }
-
-    /**
-     * @see ucfirst()
-     * @return static
-     */
-    public function ucFirst()
-    {
-        return new static(ucfirst($this->string));
-    }
-
-    /**
-     * @param array ...$args
-     *
-     * @return static
-     */
-    public function format(... $args)
-    {
-        $string = call_user_func_array('sprintf', array_merge([$this->string], $args));
-
-        return new static($string);
+        return $this->count();
     }
 
     /**
@@ -224,6 +221,70 @@ class Stringy implements ArrayAccess
     }
 
     /**
+     * @param string $search
+     * @param string $replace
+     *
+     * @see str_replace()
+     * @return static
+     */
+    public function replace($search, $replace)
+    {
+        return new static(str_replace($this->str($search), $this->str($replace), $this->string));
+    }
+
+    /**
+     * @see rtrim()
+     * @return static
+     */
+    public function rightTrim()
+    {
+        return new static(rtrim($this->string));
+    }
+
+    /**
+     * @param int $offset
+     * @param int $size
+     *
+     * @see substr()
+     * @return static
+     */
+    public function slice($offset, $size = null)
+    {
+        return new static(substr($this->string, $offset, $size));
+    }
+
+    /**
+     * @param int $size
+     *
+     * @see str_split()
+     * @return static
+     */
+    public function split($size = 1)
+    {
+        return $this->mapStrings(str_split($this->string, $size));
+    }
+
+    /**
+     * @see base64_encode()
+     * @return static
+     */
+    public function toBase64()
+    {
+        return new static(base64_encode($this->string));
+    }
+
+    /**
+     * Converts the string to lower case
+     *
+     * @see strtolower()
+     * @return static
+     */
+    public function toLower()
+    {
+        return new static(strtolower($this->str($this->string)));
+    }
+
+    /**
      * @return string
      */
     public function toString()
@@ -232,23 +293,46 @@ class Stringy implements ArrayAccess
     }
 
     /**
-     * PHP magic __toString method
+     * Converts the string to upper case
      *
-     * @return string
+     * @see strtoupper()
+     * @return static
      */
-    public function __toString()
+    public function toUpper()
     {
-        return $this->string;
+        return new static(strtoupper($this->string));
     }
 
     /**
-     * PHP magic __invoke method
-     *
+     * @see trim()
      * @return static
      */
-    public function __invoke()
+    public function trim()
     {
-        return new static($this->string);
+        return new static(trim($this->string));
+    }
+
+    /**
+     * @see ucfirst()
+     * @return static
+     */
+    public function ucFirst()
+    {
+        return new static(ucfirst($this->string));
+    }
+
+    /**
+     * @param array $strings
+     *
+     * @return array
+     */
+    protected function mapStrings($strings)
+    {
+        return array_map(function ($string) {
+
+            return new static($string);
+
+        }, $strings);
     }
 
     /**
