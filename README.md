@@ -19,6 +19,6 @@ Using the helper function `str()`
 or creating a new instance manually
 
 ```php
-  $string = new \String\Stringy('FooBarQux');
-  $string->slice(3, 3)->equals('Bar');
+  $string = new \String\Stringy('FooBarQux');  // 1
+  $string->slice(3, 3)->equals('Bar');  // true
 ```
