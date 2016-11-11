@@ -1,6 +1,6 @@
 Stringy
 =======
-[![Build Status](https://travis-ci.org/nevermnd/stringy.svg?branch=master)](https://travis-ci.org/nevermnd/stringy)
+[![Build Status](https://travis-ci.org/skiptirengu/stringy.svg?branch=master)](https://travis-ci.org/skiptirengu/stringy)
 
 Simple wrapper class for PHP string functions
 
